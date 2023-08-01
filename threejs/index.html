@@ -24,20 +24,56 @@
 
     <script type="module">
       import * as THREE from 'three';
+      import { VRButton } from 'three/addons/webxr/VRButton.js';
 
       function main() {
         const canvas = document.getElementById('c');
         const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
+        // Enable VR
+        renderer.xr.enabled = true;
+        document.body.appendChild(VRButton.createButton(renderer));
 
         const scene = new THREE.Scene();
+
+        const loader = new THREE.CubeTextureLoader();
+        const texture = loader.load([
+          'assets/Lycksele2/posx.jpg',
+          'assets/Lycksele2/negx.jpg',
+          'assets/Lycksele2/posy.jpg',
+          'assets/Lycksele2/negy.jpg',
+          'assets/Lycksele2/posz.jpg',
+          'assets/Lycksele2/negz.jpg',
+        ]);
+        scene.background = texture;
+
         const camera = createCamera();
-        camera.position.z = 2;
+        camera.position.set(0, 1.8, 0);
 
         const light = createLight();
         scene.add(light);
 
-        const cube = createCube();
-        scene.add(cube);
+        const cubes = [
+          createCube({
+            geometry: { width: 1, height: 1, depth: 1 },
+            material: { color: 0x44aa88 },
+          }),
+          createCube({
+            geometry: { width: 1, height: 1, depth: 1 },
+            material: { color: 0x880011 },
+          }),
+          createCube({
+            geometry: { width: 1, height: 1, depth: 1 },
+            material: { color: 0xddee00 },
+          }),
+        ];
+
+        // Cubes positioning
+        cubes.forEach((cube, index) => {
+          cube.position.x = index * 2 - 2;
+          cube.position.y = 1.8;
+          cube.position.z = -2;
+          scene.add(cube);
+        });
 
         function render(time) {
           time *= 0.001;
@@ -48,14 +84,14 @@
             camera.updateProjectionMatrix();
           }
 
-          cube.rotation.x = time;
-          cube.rotation.y = time;
+          cubes.forEach((cube) => {
+            cube.rotation.x = time;
+            cube.rotation.y = time;
+          });
 
           renderer.render(scene, camera);
-
-          requestAnimationFrame(render);
         }
-        requestAnimationFrame(render);
+        renderer.setAnimationLoop(render);
       }
 
       function createCamera() {

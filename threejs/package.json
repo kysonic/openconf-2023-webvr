@@ -1,0 +1,11 @@
+{
+  "name": "openconf-webvrtoday-threejs",
+  "version": "0.0.1",
+  "description": "Test scene for conference",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server -S -C ../certs/localhost.pem -K ../certs/localhost-key.pem"
+  },
+  "author": "Miroshnichenko Anton",
+  "license": "ISC"
+}
