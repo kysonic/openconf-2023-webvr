@@ -1,11 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Open Conf 2023 - Web VR Today - ThreeJS Example</title>
-</head>
-<body>
-  
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Open Conf 2023 - Web VR Today - ThreeJS Example</title>
+    <link href="./main.css" type="text/css" rel="stylesheet" />
+  </head>
+  <body>
+    <canvas id="c"></canvas>
+    <script
+      async
+      src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"
+    ></script>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.155.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.155.0/examples/jsm/"
+        }
+      }
+    </script>
+
+    <script type="module">
+      import * as THREE from 'three';
+
+      function main() {
+        const canvas = document.getElementById('c');
+        const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
+
+        const scene = new THREE.Scene();
+        const camera = createCamera();
+        camera.position.z = 2;
+
+        const light = createLight();
+        scene.add(light);
+
+        const cube = createCube();
+        scene.add(cube);
+
+        function render(time) {
+          time *= 0.001;
+
+          if (resizeRendererToDisplaySize(renderer)) {
+            const canvas = renderer.domElement;
+            camera.aspect = canvas.clientWidth / canvas.clientHeight;
+            camera.updateProjectionMatrix();
+          }
+
+          cube.rotation.x = time;
+          cube.rotation.y = time;
+
+          renderer.render(scene, camera);
+
+          requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+      }
+
+      function createCamera() {
+        const fov = 75;
+        const aspect = 2;
+        const near = 0.1;
+        const far = 5;
+
+        return new THREE.PerspectiveCamera(fov, aspect, near, far);
+      }
+
+      function createLight() {
+        const color = 0xffffff;
+        const intensity = 3;
+        const light = new THREE.DirectionalLight(color, intensity);
+        light.position.set(-1, 2, 4);
+
+        return light;
+      }
+
+      function createCube(
+        options = {
+          geometry: { width: 1, height: 1, depth: 1 },
+          material: { color: 0x44aa88 },
+        },
+      ) {
+        const geometry = new THREE.BoxGeometry(
+          ...Object.values(options.geometry),
+        );
+        const material = new THREE.MeshPhongMaterial(options.material);
+
+        const cube = new THREE.Mesh(geometry, material);
+
+        return cube;
+      }
+
+      function resizeRendererToDisplaySize(renderer) {
+        const canvas = renderer.domElement;
+        const pixelRatio = window.devicePixelRatio;
+        const width = (canvas.clientWidth * pixelRatio) | 0;
+        const height = (canvas.clientHeight * pixelRatio) | 0;
+        const needResize = canvas.width !== width || canvas.height !== height;
+        if (needResize) {
+          renderer.setSize(width, height, false);
+        }
+        return needResize;
+      }
+
+      main();
+    </script>
+  </body>
 </html>
