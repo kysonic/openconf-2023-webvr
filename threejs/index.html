@@ -25,45 +25,48 @@
     <script type="module">
       import * as THREE from 'three';
       import { VRButton } from 'three/addons/webxr/VRButton.js';
+      import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
+
+      let canvas, renderer;
+      let scene, camera;
+      let light;
+      let cubes;
 
       function main() {
-        const canvas = document.getElementById('c');
-        const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
+        canvas = document.getElementById('c');
+        renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
         // Enable VR
         renderer.xr.enabled = true;
+
         document.body.appendChild(VRButton.createButton(renderer));
 
-        const scene = new THREE.Scene();
+        scene = new THREE.Scene();
 
-        const loader = new THREE.CubeTextureLoader();
-        const texture = loader.load([
-          'assets/Lycksele2/posx.jpg',
-          'assets/Lycksele2/negx.jpg',
-          'assets/Lycksele2/posy.jpg',
-          'assets/Lycksele2/negy.jpg',
-          'assets/Lycksele2/posz.jpg',
-          'assets/Lycksele2/negz.jpg',
-        ]);
-        scene.background = texture;
-
-        const camera = createCamera();
+        camera = createCamera();
         camera.position.set(0, 1.8, 0);
 
-        const light = createLight();
+        light = createLight();
         scene.add(light);
 
-        const cubes = [
-          createCube({
-            geometry: { width: 1, height: 1, depth: 1 },
-            material: { color: 0x44aa88 },
+        cubes = [
+          createCube(undefined, {
+            color: 0xaaccbb,
+            metalness: 1,
+            roughness: 0,
+            envMapIntensity: 1.0,
           }),
-          createCube({
-            geometry: { width: 1, height: 1, depth: 1 },
-            material: { color: 0x880011 },
+          createCube(undefined, {
+            color: 0xaaccbb,
+            metalness: 1,
+            roughness: 0,
+            envMapIntensity: 1.0,
           }),
-          createCube({
-            geometry: { width: 1, height: 1, depth: 1 },
-            material: { color: 0xddee00 },
+          createCube(undefined, {
+            color: 0xaaccbb,
+            metalness: 1,
+            roughness: 0,
+            envMapIntensity: 1.0,
           }),
         ];
 
@@ -75,23 +78,46 @@
           scene.add(cube);
         });
 
-        function render(time) {
-          time *= 0.001;
+        setEnvMapsLighting();
 
-          if (resizeRendererToDisplaySize(renderer)) {
-            const canvas = renderer.domElement;
-            camera.aspect = canvas.clientWidth / canvas.clientHeight;
-            camera.updateProjectionMatrix();
-          }
-
-          cubes.forEach((cube) => {
-            cube.rotation.x = time;
-            cube.rotation.y = time;
-          });
-
-          renderer.render(scene, camera);
-        }
         renderer.setAnimationLoop(render);
+      }
+
+      function setEnvMapsLighting() {
+        THREE.DefaultLoadingManager.onLoad = function () {
+          pmremGenerator.dispose();
+        };
+
+        new EXRLoader().load(
+          'assets/backgrounds/studio/studio.exr',
+          function (texture) {
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+            cubes.forEach((cube, index) => {
+              cube.material.envMap = texture;
+            });
+            scene.background = texture;
+          },
+        );
+
+        const pmremGenerator = new THREE.PMREMGenerator(renderer);
+        pmremGenerator.compileEquirectangularShader();
+      }
+
+      function render(time) {
+        time *= 0.001;
+
+        if (resizeRendererToDisplaySize(renderer)) {
+          const canvas = renderer.domElement;
+          camera.aspect = canvas.clientWidth / canvas.clientHeight;
+          camera.updateProjectionMatrix();
+        }
+
+        cubes.forEach((cube) => {
+          cube.rotation.x = time;
+          cube.rotation.y = time;
+        });
+
+        renderer.render(scene, camera);
       }
 
       function createCamera() {
@@ -113,15 +139,13 @@
       }
 
       function createCube(
-        options = {
-          geometry: { width: 1, height: 1, depth: 1 },
-          material: { color: 0x44aa88 },
-        },
+        geometryOptions = { width: 1, height: 1, depth: 1 },
+        materialOptions = { color: 0x44aa88 },
       ) {
         const geometry = new THREE.BoxGeometry(
-          ...Object.values(options.geometry),
+          ...Object.values(geometryOptions),
         );
-        const material = new THREE.MeshPhongMaterial(options.material);
+        const material = new THREE.MeshStandardMaterial(materialOptions);
 
         const cube = new THREE.Mesh(geometry, material);
 
