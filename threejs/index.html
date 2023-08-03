@@ -26,11 +26,13 @@
       import * as THREE from 'three';
       import { VRButton } from 'three/addons/webxr/VRButton.js';
       import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
+      import Controllers from './controllers.js';
 
       let canvas, renderer;
       let scene, camera;
       let light;
       let cubes;
+      let controllers;
 
       function main() {
         canvas = document.getElementById('c');
@@ -42,6 +44,10 @@
         document.body.appendChild(VRButton.createButton(renderer));
 
         scene = new THREE.Scene();
+        controllers = new Controllers({
+          scene,
+          renderer,
+        });
 
         camera = createCamera();
         camera.position.set(0, 1.8, 0);
@@ -116,6 +122,8 @@
           cube.rotation.x = time;
           cube.rotation.y = time;
         });
+
+        controllers.update(cubes, time );
 
         renderer.render(scene, camera);
       }
