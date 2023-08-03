@@ -16,10 +16,9 @@ class Controllers {
     ]);
 
     this.controllers = [];
-    for (let i = 0; i < 2; ++i) {
+    for (let i = 0; i < 2; i++) {
       const controller = renderer.xr.getController(i);
       scene.add(controller);
-
       const line = new THREE.Line(pointerGeometry);
       line.scale.z = 5;
       controller.add(line);
