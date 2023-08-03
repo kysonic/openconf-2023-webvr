@@ -25,8 +25,14 @@
     <script type="module">
       import * as THREE from 'three';
       import { VRButton } from 'three/addons/webxr/VRButton.js';
-      import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
       import Controllers from './controllers.js';
+      import {
+        createCamera,
+        createLight,
+        createCube,
+        resizeRendererToDisplaySize,
+        setEnvMaps,
+      } from './lib.js';
 
       let canvas, renderer;
       let scene, camera;
@@ -84,20 +90,12 @@
           scene.add(cube);
         });
 
-        setEnvMapsLighting();
-
-        renderer.setAnimationLoop(render);
-      }
-
-      function setEnvMapsLighting() {
-        THREE.DefaultLoadingManager.onLoad = function () {
-          pmremGenerator.dispose();
-        };
-
-        new EXRLoader().load(
-          'assets/backgrounds/studio/studio.exr',
-          function (texture) {
-            texture.mapping = THREE.EquirectangularReflectionMapping;
+        setEnvMaps(
+          {
+            renderer,
+            url: 'assets/backgrounds/studio/studio.exr',
+          },
+          (texture) => {
             cubes.forEach((cube, index) => {
               cube.material.envMap = texture;
             });
@@ -105,8 +103,7 @@
           },
         );
 
-        const pmremGenerator = new THREE.PMREMGenerator(renderer);
-        pmremGenerator.compileEquirectangularShader();
+        renderer.setAnimationLoop(render);
       }
 
       function render(time) {
@@ -123,53 +120,9 @@
           cube.rotation.y = time;
         });
 
-        controllers.update(cubes, time );
+        controllers.update(cubes, time);
 
         renderer.render(scene, camera);
-      }
-
-      function createCamera() {
-        const fov = 75;
-        const aspect = 2;
-        const near = 0.1;
-        const far = 5;
-
-        return new THREE.PerspectiveCamera(fov, aspect, near, far);
-      }
-
-      function createLight() {
-        const color = 0xffffff;
-        const intensity = 3;
-        const light = new THREE.DirectionalLight(color, intensity);
-        light.position.set(-1, 2, 4);
-
-        return light;
-      }
-
-      function createCube(
-        geometryOptions = { width: 1, height: 1, depth: 1 },
-        materialOptions = { color: 0x44aa88 },
-      ) {
-        const geometry = new THREE.BoxGeometry(
-          ...Object.values(geometryOptions),
-        );
-        const material = new THREE.MeshStandardMaterial(materialOptions);
-
-        const cube = new THREE.Mesh(geometry, material);
-
-        return cube;
-      }
-
-      function resizeRendererToDisplaySize(renderer) {
-        const canvas = renderer.domElement;
-        const pixelRatio = window.devicePixelRatio;
-        const width = (canvas.clientWidth * pixelRatio) | 0;
-        const height = (canvas.clientHeight * pixelRatio) | 0;
-        const needResize = canvas.width !== width || canvas.height !== height;
-        if (needResize) {
-          renderer.setSize(width, height, false);
-        }
-        return needResize;
       }
 
       main();
