@@ -46,13 +46,15 @@
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         // Enable VR
         renderer.xr.enabled = true;
-
         document.body.appendChild(VRButton.createButton(renderer));
 
         scene = new THREE.Scene();
         controllers = new Controllers({
           scene,
           renderer,
+          options: {
+            modelUrl: '../assets/models/controllers/scene.gltf',
+          },
         });
 
         camera = createCamera();
@@ -93,7 +95,7 @@
         setEnvMaps(
           {
             renderer,
-            url: 'assets/backgrounds/studio/studio.exr',
+            url: '../assets/backgrounds/studio/studio.exr',
           },
           (texture) => {
             cubes.forEach((cube, index) => {

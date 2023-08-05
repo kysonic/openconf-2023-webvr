@@ -2,13 +2,14 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 class Controllers {
-  constructor({ scene, renderer }) {
+  constructor({ scene, renderer, options }) {
     this.scene = scene;
     this.renderer = renderer;
     this.raycaster = new THREE.Raycaster();
     this.objectToColorMap = new Map();
     this.controllerToObjectMap = new Map();
     this.tempMatrix = new THREE.Matrix4();
+    this.options = options;
 
     const pointerGeometry = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(0, 0, 0),
@@ -32,7 +33,7 @@ class Controllers {
     const loader = new GLTFLoader();
     const _self = this;
 
-    loader.load('assets/models/controllers/scene.gltf', function (gltf) {
+    loader.load(this.options.modelUrl, function (gltf) {
       const scale = 0.55;
 
       const leftController = gltf.scene.clone(true);
