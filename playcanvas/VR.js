@@ -1,4 +1,4 @@
-var VR = pc.createScript('VR');
+const VR = pc.createScript('VR');
 // Button in UI
 VR.attributes.add('button', {
     type: 'entity'

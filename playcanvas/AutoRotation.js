@@ -1,4 +1,4 @@
-var AutoRotation = pc.createScript('autoRotation');
+const AutoRotation = pc.createScript('autoRotation');
 
 AutoRotation.attributes.add('speed', { type: 'number', default: 5 });
 

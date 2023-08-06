@@ -56,7 +56,7 @@ class Controllers {
       this.raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
       this.raycaster.ray.direction.set(0, 0, -1).applyMatrix4(this.tempMatrix);
 
-      const intersections = this.raycaster.intersectObjects(objects);
+      const intersections = this.raycaster.intersectObjects(objects); 
 
       if (intersections.length) {
         const intersection = intersections[0];
